@@ -27,31 +27,24 @@ const opciones = { crossDomain: true }
 
 
 //interaremos recibir en orden
-const Obtener_POKEMOM = (id, callback) => {
-    const url = `${API_URL_POKEMON}${POKEMON_URL.replace(':id', id)}`
-    $
-        .get(url, opciones, callback)
-        .fail( () => {
-            console.log(`No se pudo obtener el personaje ${id}`)
+const Obtener_POKEMOM = (id) => {
+
+    return new Promise((resolve, reject) => {
+        const url = `${API_URL_POKEMON}${POKEMON_URL.replace(':id', id)}`;
+
+        $.get(url, opciones, (data) => {
+            resolve(data)
         })
-
+            .fail(() => reject(id))
+    })
 }
+const onError = (id) => console.log("ocurrio un error con el id " + id)
 
-// es importante que aqui hagmos la referencia  al funcion
-// hacemos el request en serie
-Obtener_POKEMOM(1, function (pokemon) {
-    console.log(`Hola soy tu nuevo compañero y mi nombre es: ${pokemon.forms[0].name}, soy un pokemon de tipo ${pokemon.types[0].type.name}`)
-
-    Obtener_POKEMOM(2, function (pokemon) {
+Obtener_POKEMOM(1)
+    // para cuando responda la promesa
+    .then((pokemon) => {
         console.log(`Hola soy tu nuevo compañero y mi nombre es: ${pokemon.forms[0].name}, soy un pokemon de tipo ${pokemon.types[0].type.name}`)
-
-        Obtener_POKEMOM(3, function (pokemon) {
-            console.log(`Hola soy tu nuevo compañero y mi nombre es: ${pokemon.forms[0].name}, soy un pokemon de tipo ${pokemon.types[0].type.name}`)
-
-            Obtener_POKEMOM(00000000000000000, function (pokemon) {
-                console.log(`Hola soy tu nuevo compañero y mi nombre es: ${pokemon.forms[0].name}, soy un pokemon de tipo ${pokemon.types[0].type.name}`)
-            });
-        });
-    });
-});
+    })
+    // por si exite un error
+    .catch(onError)
 
