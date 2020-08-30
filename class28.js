@@ -40,11 +40,26 @@ const Obtener_POKEMOM = (id) => {
 }
 const onError = (id) => console.log("ocurrio un error con el id " + id)
 
-Obtener_POKEMOM(1)
-    // para cuando responda la promesa
-    .then((pokemon) => {
-        console.log(`Hola soy tu nuevo compañero y mi nombre es: ${pokemon.forms[0].name}, soy un pokemon de tipo ${pokemon.types[0].type.name}`)
-    })
-    // por si exite un error
+
+var ids = [1, 2, 34, 4, 5, 54]
+// estamos creando un array de promesas
+var promesas = ids.map((id) => Obtener_POKEMOM(id))
+
+// le pasaremos un array de promesas
+Promise
+    .all(promesas)
+    .then((pokemon) => console.log(pokemon))
     .catch(onError)
+
+
+
+
+// Obtener_POKEMOM(1)
+//     // para cuando responda la promesa
+//     .then((pokemon) => {
+//         console.log(`Hola soy tu nuevo compañero y mi nombre es: ${pokemon.forms[0].name}, soy un pokemon de tipo ${pokemon.types[0].type.name}`)
+//         return Obtener_POKEMOM(89)
+//     })
+//     // por si exite un error
+//     .catch(onError)
 
