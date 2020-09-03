@@ -1,37 +1,245 @@
-## Welcome to GitHub Pages
+<!DOCTYPE html>
+<html>
 
-You can use the [editor on GitHub](https://github.com/AnthonySnk/SimonDice/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+<head>
+    <meta charset="utf-8">
+    <title>Simon Dice</title>
+    <style>
+        body {
+            margin: 0;
+            background: #dedede;
+            display: flex;
+            align-items: center;
+            height: 100vh;
+        }
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+        .gameboard {
+            height: 100vh;
+            width: 100vh;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto;
+            max-height: 60vh;
+            max-width: 60vh;
+        }
 
-### Markdown
+        .color {
+            width: 50%;
+            height: 50%;
+            display: inline-block;
+        }
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+        .left {
+            float: left;
+        }
 
-```markdown
-Syntax highlighted code block
+        .right {
+            float: left;
+        }
 
-# Header 1
-## Header 2
-### Header 3
+        .celeste {
+            background: #22a6b3;
+        }
 
-- Bulleted
-- List
+        .celeste.light {
+            background: #7ed6df;
+        }
 
-1. Numbered
-2. List
+        .violeta {
+            background: #be2edd;
+        }
 
-**Bold** and _Italic_ and `Code` text
+        .violeta.light {
+            background: #e056fd;
+        }
 
-[Link](url) and ![Image](src)
-```
+        .naranja {
+            background: #f0932b;
+        }
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+        .naranja.light {
+            background: #ffbe76;
+        }
 
-### Jekyll Themes
+        .verde {
+            background: #6ab04c;
+        }
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/AnthonySnk/SimonDice/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+        .verde.light {
+            background: #badc58;
+        }
 
-### Support or Contact
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+        .btn-start {
+            cursor: pointer;
+            width: 420px;
+            height: 100px;
+            background: #ecf0f1;
+            color: #2c3e50;
+            border: none;
+            border-bottom: 4px solid #c4c6c7;
+            border-radius: 8px;
+            font-size: 3em;
+            position: absolute;
+            top: calc(50% - 50px);
+            left: calc(50% - 210px);
+            transition: .5s;
+            outline: none;
+        }
+
+        .btn-start:hover {
+            color: #ecf0f1;
+            background: #2c3e50;
+            border-bottom: 4px solid #1f3346;
+        }
+
+        .btn-start:active {
+            transform: scale(.95);
+        }
+
+        .hide {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="gameboard">
+        <div id="celeste" class="color celeste left" data-color="celeste"></div>
+        <div id="violeta" class="color violeta right" data-color="violeta"></div>
+        <div id="naranja" class="color naranja left" data-color="naranja"></div>
+        <div id="verde" class="color verde right" data-color="verde"></div>
+        <button id="btnEmpezar" class="btn-start" onclick="empezarJuego()">Empezar a jugar!</button>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+    <script>
+        const celeste = document.getElementById('celeste')
+        const violeta = document.getElementById('violeta')
+        const naranja = document.getElementById('naranja')
+        const verde = document.getElementById('verde')
+        const btnEmpezar = document.getElementById('btnEmpezar')
+        const ULTIMO_NIVEL = 20
+        swal('Inicio','Hola solo debes seguir la secuencia de los colores!','warning')
+        class Juego {
+            constructor() {
+                this.inicializar()
+                this.generarSecuencia()
+                setTimeout(this.siguienteNivel(), 500)
+            }
+            inicializar() {
+                this.siguienteNivel = this.siguienteNivel.bind(this)
+                this.elegirColor = this.elegirColor.bind(this)
+                this.inicializar = this.inicializar.bind(this)
+                this.toggleBtnEmpezar()
+
+                this.nivel = 1
+                this.colores = {
+                    celeste,
+                    violeta,
+                    naranja,
+                    verde
+                }
+            }
+            toggleBtnEmpezar() {
+                if (btnEmpezar.classList.contains('hide')) {
+                    btnEmpezar.classList.remove('hide')
+                }
+                else {
+                    btnEmpezar.classList.add('hide')
+                }
+            }
+            generarSecuencia() {
+                this.secuencia = new Array(ULTIMO_NIVEL).fill(0).map(n => Math.floor(Math.random() * 4))
+            }
+            siguienteNivel() {
+                this.subnivel = 0
+                this.iluminarSecuencia()
+                this.agregarEventosClick()
+            }
+            transformarNumeroAColor(numero) {
+                switch (numero) {
+                    case 0: return 'celeste'
+                    case 1: return 'violeta'
+                    case 2: return 'naranja'
+                    case 3: return 'verde'
+                }
+            }
+
+            transformarColorANumero(color) {
+                switch (color) {
+                    case 'celeste': return 0
+                    case 'violeta': return 1
+                    case 'naranja': return 2
+                    case 'verde': return 3
+                }
+
+            }
+            iluminarSecuencia() {
+                for (let i = 0; i < this.nivel; i++) {
+                    const color = this.transformarNumeroAColor(this.secuencia[i])
+                    setTimeout(() => this.iluminarColor(color), 1000 * i)
+                }
+            }
+            iluminarColor(color) {
+                this.colores[color].classList.add('light')
+                setTimeout(() => this.apagarColor(color), 350)
+            }
+            apagarColor(color) {
+                this.colores[color].classList.remove('light')
+            }
+            agregarEventosClick() {
+                this.colores.celeste.addEventListener('click', this.elegirColor)
+                this.colores.verde.addEventListener('click', this.elegirColor)
+                this.colores.violeta.addEventListener('click', this.elegirColor)
+                this.colores.naranja.addEventListener('click', this.elegirColor)
+            }
+            eliminarEventosClick() {
+                this.colores.celeste.removeEventListener('click', this.elegirColor)
+                this.colores.verde.removeEventListener('click', this.elegirColor)
+                this.colores.violeta.removeEventListener('click', this.elegirColor)
+                this.colores.naranja.removeEventListener('click', this.elegirColor)
+            }
+            elegirColor(ev) {
+                const nombreColor = ev.target.dataset.color
+                const numeroColor = this.transformarColorANumero(nombreColor)
+                this.iluminarColor(nombreColor)
+                if (numeroColor === this.secuencia[this.subnivel]) {
+                    this.subnivel++
+                    if (this.subnivel === this.nivel) {
+                        this.nivel++
+                        this.eliminarEventosClick()
+                        if (this.nivel === (ULTIMO_NIVEL + 1)) {
+                            this.ganoElJuego()
+                        } else {
+                            setTimeout(this.siguienteNivel(), 1500)
+                        }
+                    }
+                }
+                else {
+                    this.perdioElJuego()
+                }
+            }
+            ganoElJuego() {
+                swal('Juego', 'Felicitaciones, ganaste el juego', 'success')
+                    .then(this.inicializar)
+            }
+
+            perdioElJuego() {
+                swal('Juego', 'Lo lamentamos, perdiste :(', 'error')
+                    .then(() => {
+                        this.eliminarEventosClick()
+                        this.inicializar()
+                    })
+            }
+        }
+
+        function empezarJuego() {
+            window.juego = new Juego()
+        }
+    </script>
+</body>
+
+</html>
